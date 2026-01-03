@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: твоё_имя
+  author: Avers90
   description: Manage system packages and repositories
   license: MIT
   min_ansible_version: "2.10"
