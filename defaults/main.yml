@@ -1,0 +1,29 @@
+---
+packages_install_common:
+  - iptables-persistent
+  - netfilter-persistent
+  - git
+  - bind9-host
+  - net-tools
+  - auditd
+  - audispd-plugins
+  - htop
+  - duf
+  - jq
+  - yq
+  - curl
+  - vim
+  - wget
+  - unzip
+  - ca-certificates
+  - gnupg
+
+packages_install_extra: []
+
+packages_remove: []
+
+packages_update_cache: true
+
+packages_cache_valid_time: 3600
+
+packages_repositories: []

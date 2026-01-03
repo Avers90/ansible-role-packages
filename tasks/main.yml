@@ -1,0 +1,41 @@
+---
+- name: packages | Include distro-specific variables
+  ansible.builtin.include_vars:
+    file: "{{ ansible_distribution }}.yml"
+
+- name: packages | Add repository GPG keys
+  ansible.builtin.apt_key:
+    url: "{{ item.key_url }}"
+    state: present
+  loop: "{{ packages_repositories }}"
+  loop_control:
+    label: "{{ item.filename }}"
+  when: packages_repositories | length > 0
+
+- name: packages | Add repositories
+  ansible.builtin.apt_repository:
+    repo: "{{ item.repo }}"
+    filename: "{{ item.filename }}"
+    state: present
+  loop: "{{ packages_repositories }}"
+  loop_control:
+    label: "{{ item.filename }}"
+  when: packages_repositories | length > 0
+
+- name: packages | Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: "{{ packages_cache_valid_time }}"
+  when: packages_update_cache
+
+- name: packages | Install packages
+  ansible.builtin.apt:
+    name: "{{ packages_install_common + packages_distro_specific + packages_install_extra }}"
+    state: present
+
+- name: packages | Remove packages
+  ansible.builtin.apt:
+    name: "{{ packages_remove }}"
+    state: absent
+    purge: true
+  when: packages_remove | length > 0
