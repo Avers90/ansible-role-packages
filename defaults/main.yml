@@ -1,4 +1,7 @@
 ---
+# Perform full system upgrade (use on first run)
+packages_full_upgrade: false
+
 packages_install_common:
   - iptables-persistent
   - netfilter-persistent
