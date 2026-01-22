@@ -3,25 +3,32 @@
   ansible.builtin.include_vars:
     file: "{{ ansible_distribution }}.yml"
 
-- name: packages | Wait for apt lock to be released
-  ansible.builtin.shell: |
-    while ! apt-get check >/dev/null 2>&1; do
-      sleep 5
-    done
-  changed_when: false
+- name: packages | Wait for dpkg lock to be released
+  ansible.builtin.wait_for:
+    path: /var/lib/dpkg/lock-frontend
+    state: absent
+  timeout: 300
 
-- name: packages | Add repository GPG keys
-  ansible.builtin.apt_key:
+- name: packages | Ensure keyrings directory exists
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+  when: packages_repositories | length > 0
+
+- name: packages | Download repository GPG keys
+  ansible.builtin.get_url:
     url: "{{ item.key_url }}"
-    state: present
+    dest: "/etc/apt/keyrings/{{ item.filename }}.asc"
+    mode: "0644"
   loop: "{{ packages_repositories }}"
   loop_control:
     label: "{{ item.filename }}"
   when: packages_repositories | length > 0
 
-- name: packages | Add repositories
+- name: packages | Add repositories with signed-by
   ansible.builtin.apt_repository:
-    repo: "{{ item.repo }}"
+    repo: "deb [signed-by=/etc/apt/keyrings/{{ item.filename }}.asc] {{ item.repo }}"
     filename: "{{ item.filename }}"
     state: present
   loop: "{{ packages_repositories }}"
