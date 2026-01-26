@@ -1,4 +1,9 @@
 ---
+- name: packages | Fail if distro is not supported
+  ansible.builtin.fail:
+    msg: "Distribution '{{ ansible_distribution }}' is not supported. Supported: Debian, Ubuntu"
+  when: ansible_distribution not in ['Debian', 'Ubuntu']
+
 - name: packages | Include distro-specific variables
   ansible.builtin.include_vars:
     file: "{{ ansible_distribution }}.yml"
