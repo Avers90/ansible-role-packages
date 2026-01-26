@@ -9,10 +9,13 @@
     file: "{{ ansible_distribution }}.yml"
 
 - name: packages | Wait for dpkg lock to be released
-  ansible.builtin.wait_for:
-    path: /var/lib/dpkg/lock-frontend
-    state: absent
-  timeout: 300
+  ansible.builtin.shell: |
+    while fuser /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock >/dev/null 2>&1; do
+      sleep 5
+    done
+  changed_when: false
+  async: 300
+  poll: 10
 
 - name: packages | Ensure keyrings directory exists
   ansible.builtin.file:
