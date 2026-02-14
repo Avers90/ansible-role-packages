@@ -1,12 +1,12 @@
 ---
 - name: packages | Fail if distro is not supported
   ansible.builtin.fail:
-    msg: "Distribution '{{ ansible_distribution }}' is not supported. Supported: Debian, Ubuntu"
-  when: ansible_distribution not in ['Debian', 'Ubuntu']
+    msg: "Distribution '{{ ansible_facts['distribution'] }}' is not supported. Supported: Debian, Ubuntu"
+  when: ansible_facts['distribution'] not in ['Debian', 'Ubuntu']
 
 - name: packages | Include distro-specific variables
   ansible.builtin.include_vars:
-    file: "{{ ansible_distribution }}.yml"
+    file: "{{ ansible_facts['distribution'] }}.yml"
 
 - name: packages | Wait for dpkg lock to be released
   ansible.builtin.shell: |
@@ -48,14 +48,14 @@
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: "{{ packages_cache_valid_time }}"
-  when: packages_update_cache
+  when: packages_update_cache | bool
 
 - name: packages | Full system upgrade
   ansible.builtin.apt:
     upgrade: full
     autoclean: true
     autoremove: true
-  when: packages_full_upgrade | default(false)
+  when: packages_full_upgrade | default(false) | bool
 
 - name: packages | Install packages
   ansible.builtin.apt:
