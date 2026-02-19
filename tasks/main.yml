@@ -68,3 +68,46 @@
     state: absent
     purge: true
   when: packages_remove | length > 0
+
+## Install yq (from apt if available, otherwise from GitHub)
+- name: packages | Check if yq is available in apt
+  ansible.builtin.shell: "apt-cache show yq 2>/dev/null | grep -q 'Package: yq'"
+  register: yq_apt_available
+  changed_when: false
+  failed_when: false
+  when: packages_yq_install | bool
+
+- name: packages | Install yq from apt
+  ansible.builtin.apt:
+    name: yq
+    state: present
+  when:
+    - packages_yq_install | bool
+    - yq_apt_available.rc == 0
+
+## Fallback: install yq from GitHub if not in apt
+- name: packages | Set yq architecture
+  ansible.builtin.set_fact:
+    _yq_arch: "{{ 'amd64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' if ansible_facts['architecture'] == 'aarch64' else ansible_facts['architecture'] }}"
+  when:
+    - packages_yq_install | bool
+    - yq_apt_available.rc != 0
+
+- name: packages | Check current yq version
+  ansible.builtin.command: /usr/local/bin/yq --version
+  register: yq_current_version
+  changed_when: false
+  failed_when: false
+  when:
+    - packages_yq_install | bool
+    - yq_apt_available.rc != 0
+
+- name: packages | Download yq from GitHub
+  ansible.builtin.get_url:
+    url: "https://github.com/mikefarah/yq/releases/download/{{ packages_yq_version }}/yq_linux_{{ _yq_arch }}"
+    dest: /usr/local/bin/yq
+    mode: "0755"
+  when:
+    - packages_yq_install | bool
+    - yq_apt_available.rc != 0
+    - packages_yq_version not in (yq_current_version.stdout | default(''))

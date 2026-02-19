@@ -12,13 +12,28 @@ Manage system packages and repositories for Debian/Ubuntu.
 | `packages_update_cache` | `true` | Update apt cache |
 | `packages_cache_valid_time` | `3600` | Cache validity in seconds |
 | `packages_repositories` | `[]` | Additional repositories |
+| `packages_yq_install` | `true` | Install yq YAML processor |
+| `packages_yq_version` | `v4.44.3` | yq version (used if apt unavailable) |
 
 ## Distro-specific packages
 
-Automatically loaded from `vars/{{ ansible_distribution }}.yml`:
+Automatically loaded from `vars/{{ ansible_facts['distribution'] }}.yml`:
 
 - **Debian**: `sudo`
 - **Ubuntu**: none
+
+## yq Installation
+
+The `yq` YAML processor is installed automatically:
+
+- **Ubuntu 23.04+**: installed from apt repository
+- **Ubuntu 22.04, Debian 11/12**: downloaded from [GitHub releases](https://github.com/mikefarah/yq)
+
+To disable yq installation:
+
+```yaml
+packages_yq_install: false
+```
 
 ## Examples
 

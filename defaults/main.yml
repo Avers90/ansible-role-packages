@@ -13,7 +13,6 @@ packages_install_common:
   - htop
   - duf
   - jq
-  - yq
   - curl
   - vim
   - wget
@@ -30,3 +29,8 @@ packages_update_cache: true
 packages_cache_valid_time: 3600
 
 packages_repositories: []
+
+## yq YAML processor
+## Installed from apt if available, otherwise from GitHub releases
+packages_yq_install: true
+packages_yq_version: "v4.44.3"
