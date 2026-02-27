@@ -19,6 +19,7 @@ packages_install_common:
   - unzip
   - ca-certificates
   - gnupg
+  - ncdu
 
 packages_install_extra: []
 
