@@ -20,6 +20,9 @@ packages_install_common:
   - ca-certificates
   - gnupg
   - ncdu
+  - plocate
+  - tree
+  - lshw
 
 packages_install_extra: []
 
