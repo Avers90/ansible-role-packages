@@ -1,6 +1,16 @@
 ---
-# Perform full system upgrade (use on first run)
-packages_full_upgrade: false
+# Upgrade mode: none | safe | full
+#   none — не апгрейдить ничего (только установка новых пакетов)
+#   safe — apt upgrade (security/bugfix БЕЗ ядра/firmware) — 1-3 мин
+#   full — apt upgrade full / dist-upgrade (всё, включая ядро) — 10-30 мин
+packages_upgrade_mode: none
+
+# Async settings for upgrade tasks (safe and full).
+# Avoids the "ansible hangs silently" issue while linux-firmware/kernel
+# packages download for many minutes.
+# Total wait limit in seconds (1800 = 30 min) and poll interval in seconds.
+packages_full_upgrade_async_timeout: 1800
+packages_full_upgrade_async_poll: 30
 
 packages_install_common:
   - iptables-persistent

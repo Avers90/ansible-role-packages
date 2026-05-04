@@ -49,24 +49,52 @@
     update_cache: true
     cache_valid_time: "{{ packages_cache_valid_time }}"
   when: packages_update_cache | bool
+  register: _apt_update
+  until: _apt_update is success
+  retries: 3
+  delay: 10
 
-- name: packages | Full system upgrade
+- name: packages | Validate upgrade mode
+  ansible.builtin.fail:
+    msg: "packages_upgrade_mode must be one of: none, safe, full (got: {{ packages_upgrade_mode }})"
+  when: packages_upgrade_mode not in ['none', 'safe', 'full']
+
+- name: packages | Safe upgrade (security/bugfix — no kernel, no firmware)
+  ansible.builtin.apt:
+    upgrade: safe
+    update_cache: true
+    dpkg_options: "force-confold,force-confdef"
+  async: "{{ packages_full_upgrade_async_timeout | default(1800) }}"
+  poll: "{{ packages_full_upgrade_async_poll | default(30) }}"
+  when: packages_upgrade_mode == 'safe'
+
+- name: packages | Full system upgrade (dist-upgrade — kernel + firmware)
   ansible.builtin.apt:
     upgrade: full
-    autoclean: true
     autoremove: true
-  when: packages_full_upgrade | default(false) | bool
+    update_cache: true
+    dpkg_options: "force-confold,force-confdef"
+  async: "{{ packages_full_upgrade_async_timeout | default(1800) }}"
+  poll: "{{ packages_full_upgrade_async_poll | default(30) }}"
+  when: packages_upgrade_mode == 'full'
+
+- name: packages | Autoclean apt cache (after upgrade)
+  ansible.builtin.apt:
+    autoclean: true
+  when: packages_upgrade_mode in ['safe', 'full']
 
 - name: packages | Install packages
   ansible.builtin.apt:
     name: "{{ packages_install_common + packages_distro_specific + packages_install_extra }}"
     state: present
+    dpkg_options: "force-confold,force-confdef"
 
 - name: packages | Remove packages
   ansible.builtin.apt:
     name: "{{ packages_remove }}"
     state: absent
     purge: true
+    dpkg_options: "force-confold,force-confdef"
   when: packages_remove | length > 0
 
 ## Install yq (from apt if available, otherwise from GitHub)
