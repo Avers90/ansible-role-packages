@@ -80,10 +80,14 @@ packages_remove:
 ### Add repository
 ```yaml
 packages_repositories:
-  - repo: "deb https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+  - repo: "https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
     key_url: "https://download.docker.com/linux/debian/gpg"
     filename: docker
 ```
+
+`repo` is `uri suite components` (no leading `deb`). Repositories are deployed
+in deb822 format to `/etc/apt/sources.list.d/<filename>.sources`. `key_url` is
+fetched automatically into `signed_by`.
 
 ## License
 

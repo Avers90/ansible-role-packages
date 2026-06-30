@@ -17,28 +17,16 @@
   async: 300
   poll: 10
 
-- name: packages | Ensure keyrings directory exists
-  ansible.builtin.file:
-    path: /etc/apt/keyrings
-    state: directory
-    mode: "0755"
-  when: packages_repositories | length > 0
-
-- name: packages | Download repository GPG keys
-  ansible.builtin.get_url:
-    url: "{{ item.key_url }}"
-    dest: "/etc/apt/keyrings/{{ item.filename }}.asc"
-    mode: "0644"
-  loop: "{{ packages_repositories }}"
-  loop_control:
-    label: "{{ item.filename }}"
-  when: packages_repositories | length > 0
-
-- name: packages | Add repositories with signed-by
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/{{ item.filename }}.asc] {{ item.repo }}"
-    filename: "{{ item.filename }}"
+- name: packages | Add repositories (deb822 format)
+  ansible.builtin.deb822_repository:
+    name: "{{ item.filename }}"
+    types: [deb]
+    uris: "{{ item.repo.split()[0] }}"
+    suites: "{{ item.repo.split()[1] }}"
+    components: "{{ item.repo.split()[2:] }}"
+    signed_by: "{{ item.key_url }}"
     state: present
+    enabled: true
   loop: "{{ packages_repositories }}"
   loop_control:
     label: "{{ item.filename }}"
