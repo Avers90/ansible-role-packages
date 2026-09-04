@@ -33,6 +33,7 @@ packages_install_common:
   - plocate
   - tree
   - lshw
+  - mosh
 
 packages_install_extra: []
 
