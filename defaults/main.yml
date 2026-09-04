@@ -34,6 +34,7 @@ packages_install_common:
   - tree
   - lshw
   - mosh
+  - ripgrep
 
 packages_install_extra: []
 
