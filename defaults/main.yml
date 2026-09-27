@@ -20,7 +20,7 @@ packages_install_common:
   - net-tools
   - auditd
   - audispd-plugins
-  - htop
+  - btop
   - duf
   - jq
   - curl
@@ -33,7 +33,6 @@ packages_install_common:
   - plocate
   - tree
   - lshw
-  - mosh
   - ripgrep
 
 packages_install_extra: []
