@@ -17,6 +17,28 @@
   async: 300
   poll: 10
 
+## Provider images may ship a mirror that is unreachable from the host
+## (e.g. ru.archive.ubuntu.com on vps.one). security.ubuntu.com, ports
+## (/ubuntu-ports) and third-party repos do not match the regexp.
+- name: packages | Check Ubuntu deb822 sources
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list.d/ubuntu.sources
+  register: _ubuntu_sources
+  when:
+    - packages_ubuntu_mirror | length > 0
+    - ansible_facts['distribution'] == 'Ubuntu'
+
+- name: packages | Set Ubuntu archive mirror
+  ansible.builtin.replace:
+    path: /etc/apt/sources.list.d/ubuntu.sources
+    regexp: '^URIs:\s+https?://(?!security\.ubuntu\.com)[^/\s]+/ubuntu/?\s*$'
+    replace: "URIs: {{ packages_ubuntu_mirror }}"
+    backup: true
+  when:
+    - packages_ubuntu_mirror | length > 0
+    - ansible_facts['distribution'] == 'Ubuntu'
+    - _ubuntu_sources.stat.exists | default(false)
+
 - name: packages | Add repositories (deb822 format)
   ansible.builtin.deb822_repository:
     name: "{{ item.filename }}"

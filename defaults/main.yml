@@ -45,6 +45,11 @@ packages_cache_valid_time: 3600
 
 packages_repositories: []
 
+## Ubuntu archive mirror for /etc/apt/sources.list.d/ubuntu.sources
+## (deb822, Ubuntu 24.04+). Empty = keep whatever the image ships.
+## Example: "http://archive.ubuntu.com/ubuntu/"
+packages_ubuntu_mirror: ""
+
 ## yq YAML processor
 ## Installed from apt if available, otherwise from GitHub releases
 packages_yq_install: true

@@ -12,6 +12,7 @@ Manage system packages and repositories for Debian/Ubuntu.
 | `packages_update_cache` | `true` | Update apt cache (with retries: 3, delay: 10s) |
 | `packages_cache_valid_time` | `3600` | Cache validity in seconds |
 | `packages_repositories` | `[]` | Additional repositories |
+| `packages_ubuntu_mirror` | `""` | Ubuntu archive mirror in `ubuntu.sources` (empty = keep the image's) |
 | `packages_upgrade_mode` | `none` | Upgrade mode: `none` / `safe` / `full` |
 | `packages_full_upgrade_async_timeout` | `1800` | Max wait for safe/full upgrade (sec) |
 | `packages_full_upgrade_async_poll` | `30` | Poll interval — ansible prints status (sec) |
@@ -88,6 +89,19 @@ packages_repositories:
 `repo` is `uri suite components` (no leading `deb`). Repositories are deployed
 in deb822 format to `/etc/apt/sources.list.d/<filename>.sources`. `key_url` is
 fetched automatically into `signed_by`.
+
+### Pin the Ubuntu mirror
+```yaml
+packages_ubuntu_mirror: "http://archive.ubuntu.com/ubuntu/"
+```
+
+Provider images may ship a regional mirror (e.g. `ru.archive.ubuntu.com`) that
+becomes unreachable from the host. The role rewrites the archive `URIs:` lines
+in `/etc/apt/sources.list.d/ubuntu.sources` before `apt update`; the old file is
+kept next to it (`backup: true`, apt ignores the `~` suffix).
+`security.ubuntu.com`, `ports.ubuntu.com/ubuntu-ports` and other repositories are
+left alone. Hosts without `ubuntu.sources` (Ubuntu 22.04 and older, Debian) are
+skipped.
 
 ## License
 
